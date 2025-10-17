@@ -26,7 +26,7 @@ rain_speed_randomness = 0.25
 horz = 0.5
 
 class Splash():
-    def __init__(self, x, y): # vel is how much right or left the splash should be going (idk)
+    def __init__(self, x, y):
         self.x = x
         self.y = y
         self.dots = []
@@ -42,7 +42,7 @@ class Splash():
                 dot_pos.y += dot_y_vel
                 dot_y_vel += 0.1
 
-    def debug_draw(self):
+    def debug_draw(self): #need to figure out these stupid ass splashes
         pg.draw.line(screen, WHITE, vec2(self.x, self.y), vec2(self.x, self.y-10))
 
 spawn_interval = random.random()*rain_amount+rain_amount
