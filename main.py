@@ -3,7 +3,7 @@ import random
 
 pg.init()
 WIDTH, HEIGHT = 1280, 720
-FPS = 75
+FPS = 60
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Rain")
 
@@ -26,15 +26,24 @@ rain_speed_randomness = 0.25
 horz = 0.5
 
 class Splash():
-    def __init__(self, x, y, vel): # vel is how much right or left the splash should be going (idk)
+    def __init__(self, x, y): # vel is how much right or left the splash should be going (idk)
         self.x = x
         self.y = y
-        self.vel = vel
         self.dots = []
 
     def anim(self):
-        for _ in range(random.randint(0, 4)):
-            self.dots.append
+        for i in range(random.randint(0, 4)):
+            self.dots.append([self.x, self.y, ((random.random()*2)-1), random.random()*-1-0.1])
+        for dot in self.dots:
+            dot_pos = vec2(dot[0], dot[1])
+            dot_y_vel = dot[3]
+            while True:
+                dot_pos.x += dot[2]
+                dot_pos.y += dot_y_vel
+                dot_y_vel += 0.1
+
+    def debug_draw(self):
+        pg.draw.line(screen, WHITE, vec2(self.x, self.y), vec2(self.x, self.y-10))
 
 spawn_interval = random.random()*rain_amount+rain_amount
 
@@ -63,12 +72,11 @@ while run:
         if particle[1] > HEIGHT+rain_length or particle[0]+(horz/(particle_pos.y - prev_pos.y))*rain_length < -1:
             particles.remove(particle)
         if particle[1] > HEIGHT and particle[1] < HEIGHT+1:
-            splash = Splash(particle_pos.x, particle_pos.y, 0)
+            splash = Splash(particle_pos.x, particle_pos.y)
             splashes.append(splash)
 
     for splash in splashes:
-        while splash:
-            splash.anim()
+        splash.debug_draw()
 
     pg.display.flip()
 pg.quit
