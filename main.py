@@ -18,10 +18,11 @@ BLACK = (0, 0, 0)
 particles = []
 splashes = []
 
+last_spawn_time = pg.time.get_ticks()
 rain_length = 10
 rain_width = 1
 rain_speed = 10
-rain_amount = 0
+rain_amount = 1
 rain_speed_randomness = 0.25
 horz = 5
 
@@ -32,7 +33,6 @@ while run:
         if event.type == pg.QUIT:
             run = False
     clock.tick(FPS)
-    last_spawn_time = pg.time.get_ticks()
     time = pg.time.get_ticks()
 
     if time - last_spawn_time >= spawn_interval:
