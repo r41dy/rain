@@ -4,7 +4,6 @@ import random
 pg.init()
 WIDTH, HEIGHT = 1280, 720
 FPS = 75
-clock = pg.time.Clock()
 screen = pg.display.set_mode((WIDTH, HEIGHT))
 pg.display.set_caption("Rain")
 
@@ -21,10 +20,10 @@ splashes = []
 last_spawn_time = pg.time.get_ticks()
 rain_length = 10
 rain_width = 1
-rain_speed = 10
-rain_amount = 1
+rain_speed = 1.5
+rain_amount = 5 # more is less
 rain_speed_randomness = 0.25
-horz = 5
+horz = 0.5
 
 spawn_interval = random.random()*rain_amount+rain_amount
 
@@ -32,7 +31,6 @@ while run:
     for event in pg.event.get():
         if event.type == pg.QUIT:
             run = False
-    clock.tick(FPS)
     time = pg.time.get_ticks()
 
     if time - last_spawn_time >= spawn_interval:
@@ -51,7 +49,7 @@ while run:
         particle[0] -= horz
         particle_pos = vec2(particle[0], particle[1])
         pg.draw.aaline(screen, WHITE, vec2(particle_pos.x, particle_pos.y), vec2(particle_pos.x+(horz/(particle_pos.y - prev_pos.y))*rain_length, particle_pos.y-rain_length), rain_width)
-        if particle[1] > HEIGHT+rain_length or particle[0] < 0:
+        if particle[1] > HEIGHT+rain_length or particle[0]+(horz/(particle_pos.y - prev_pos.y))*rain_length < -1:
             particles.remove(particle)
         if particle[1] == HEIGHT:
             print("splash")
