@@ -30,6 +30,7 @@ class Splash():
         self.x = x
         self.y = y
         self.dots = []
+        self.spawn_time = pg.time.get_ticks()
 
     def anim(self):
         for i in range(random.randint(0, 4)):
@@ -42,8 +43,16 @@ class Splash():
                 dot_pos.y += dot_y_vel
                 dot_y_vel += 0.1
 
-    def debug_draw(self): #need to figure out these stupid ass splashes
+    def timer(self):
+        timer = pg.time.get_ticks() - self.spawn_time
+        if timer > 1000:
+            return True
+
+    def debug_draw(self):
         pg.draw.line(screen, WHITE, vec2(self.x, self.y), vec2(self.x, self.y-10))
+
+    def __del__(self):
+        pass
 
 spawn_interval = random.random()*rain_amount+rain_amount
 
@@ -77,6 +86,9 @@ while run:
 
     for splash in splashes:
         splash.debug_draw()
+        if splash.timer():
+            splashes.remove(splash)
+            del splash
 
     pg.display.flip()
 pg.quit
