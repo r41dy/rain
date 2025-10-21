@@ -14,7 +14,7 @@ run = True
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-particles = []
+raindrops = []
 splashes = []
 
 last_spawn_time = pg.time.get_ticks()
@@ -63,25 +63,25 @@ while run:
     time = pg.time.get_ticks()
 
     if time - last_spawn_time >= spawn_interval:
-        particle_x = random.randint(0, int(WIDTH+HEIGHT))
-        particle_y = 0
+        raindrop_x = random.randint(0, int(WIDTH+HEIGHT))
+        raindrop_y = 0
         rain_self_speed = rain_speed + (random.random()*rain_speed_randomness-(rain_speed_randomness/2))
-        particles.append([particle_x, particle_y, rain_self_speed])
+        raindrops.append([raindrop_x, raindrop_y, rain_self_speed])
         spawn_interval = random.random()*rain_amount+rain_amount
         last_spawn_time = time
     
     screen.fill(BLACK)
 
-    for particle in particles:
-        prev_pos = vec2(particle[0], particle[1])
-        particle[1] += particle[2]
-        particle[0] -= horz
-        particle_pos = vec2(particle[0], particle[1])
-        pg.draw.aaline(screen, WHITE, vec2(particle_pos.x, particle_pos.y), vec2(particle_pos.x+(horz/(particle_pos.y - prev_pos.y))*rain_length, particle_pos.y-rain_length), rain_width)
-        if particle[1] > HEIGHT+rain_length or particle[0]+(horz/(particle_pos.y - prev_pos.y))*rain_length < -1:
-            particles.remove(particle)
-        if particle[1] > HEIGHT and particle[1] < HEIGHT+1:
-            splash = Splash(particle_pos.x, particle_pos.y)
+    for raindrop in raindrops:
+        prev_pos = vec2(raindrop[0], raindrop[1])
+        raindrop[1] += raindrop[2]
+        raindrop[0] -= horz
+        raindrop_pos = vec2(raindrop[0], raindrop[1])
+        pg.draw.aaline(screen, WHITE, vec2(raindrop_pos.x, raindrop_pos.y), vec2(raindrop_pos.x+(horz/(raindrop_pos.y - prev_pos.y))*rain_length, raindrop_pos.y-rain_length), rain_width)
+        if raindrop[1] > HEIGHT+rain_length or raindrop[0]+(horz/(raindrop_pos.y - prev_pos.y))*rain_length < -1:
+            raindrops.remove(raindrop)
+        if raindrop[1] > HEIGHT and raindrop[1] < HEIGHT+3:
+            splash = Splash(raindrop_pos.x, HEIGHT)
             splashes.append(splash)
 
     for splash in splashes:
