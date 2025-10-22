@@ -13,30 +13,27 @@ vec2 = pg.Vector2
 
 run = True
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-
 raindrops = []
 splashes = []
-
 last_spawn_time = pg.time.get_ticks()
+
+# PARAMETERS
+BACKGROUND_COLOR = (0, 0, 0)
 rain_length = 10
 rain_width = 1
 rain_speed = 500
-rain_amount = 5 # more is less
+rain_amount = 5 # less is more
 rain_speed_randomness = 0.25
-horz = 250
-
-#random value (0-255)
-value_a = 180
-value_b = 255
+horizontal_rain_velocity = 250
+rain_color_R, rain_color_G, rain_color_B = 255, 255, 255
+value_randomness_factor = 0.25
 
 class Splash():
-    def __init__(self, x, y, colorvalue, rotation):
+    def __init__(self, x, y, color, rotation):
         self.x = x
         self.y = y
         self.dots = []
-        self.colorvalue = colorvalue
+        self.color = color
         self.spawn_time = pg.time.get_ticks()
         for i in range(4):
             splash_rotation = vec2((random.random()*2-1)*100, -100).rotate(rotation)
@@ -51,12 +48,9 @@ class Splash():
             if dot[1] > HEIGHT+5:
                 self.dots.remove(dot)
 
-    def debug_draw(self):
-        pg.draw.line(screen, WHITE, vec2(self.x, self.y), vec2(self.x, self.y-10))
-
     def draw(self):
         for dot in self.dots:
-            pg.draw.circle(screen, (self.colorvalue, self.colorvalue, self.colorvalue), (dot[0], dot[1]), 1)
+            pg.draw.circle(screen, self.color, (dot[0], dot[1]), 1)
 
     def __del__(self):
         pass
@@ -80,32 +74,33 @@ while run:
     if time - last_spawn_time >= spawn_interval:
         raindrop_x = random.randint(0, int(WIDTH+HEIGHT))
         raindrop_y = 0
+        rain_value_randomness = random.random()*value_randomness_factor
+        rain_color = (rain_color_R-rain_color_R*rain_value_randomness, rain_color_G-rain_color_G*rain_value_randomness, rain_color_B-rain_color_B*rain_value_randomness)
         rain_self_speed = rain_speed + (random.random()*rain_speed_randomness-(rain_speed_randomness/2))
-        raindrops.append([raindrop_x, raindrop_y, rain_self_speed, random.randint(value_a, value_b), False]) # random color value determination
+        raindrops.append([raindrop_x, raindrop_y, rain_self_speed, False, rain_color]) # random color value determination
         spawn_interval = random.random()*rain_amount+rain_amount
         last_spawn_time = time
     
-    screen.fill(BLACK)
+    screen.fill(BACKGROUND_COLOR)
 
     for raindrop in raindrops:
         raindrop_mask = pg.mask.from_surface(pg.Surface((1, 1)))
-        colorvalue = raindrop[3]
         prev_pos = vec2(raindrop[0], raindrop[1])
         raindrop[1] += raindrop[2] * dt
-        raindrop[0] -= horz * dt
+        raindrop[0] -= horizontal_rain_velocity * dt
         raindrop_pos = vec2(raindrop[0], raindrop[1])
-        pg.draw.aaline(screen, (colorvalue, colorvalue, colorvalue), vec2(raindrop_pos.x, raindrop_pos.y), vec2(raindrop_pos.x+((horz*dt)/(raindrop_pos.y - prev_pos.y))*rain_length, raindrop_pos.y-rain_length), rain_width)
-        if raindrop[1] > HEIGHT and not raindrop[4]:
-            raindrop[4] = True
-            splash = Splash(raindrop_pos.x, raindrop_pos.y, colorvalue, 0)
+        pg.draw.aaline(screen, raindrop[4], vec2(raindrop_pos.x, raindrop_pos.y), vec2(raindrop_pos.x+((horizontal_rain_velocity*dt)/(raindrop_pos.y - prev_pos.y))*rain_length, raindrop_pos.y-rain_length), rain_width)
+        if raindrop[1] > HEIGHT and not raindrop[3]:
+            raindrop[3] = True
+            splash = Splash(raindrop_pos.x, raindrop_pos.y, raindrop[4], 0)
             splashes.append(splash)
             raindrops.remove(raindrop)
-        if raindrop_mask.overlap(mouse_mask, (mouse_x - raindrop_pos.x, mouse_y - raindrop_pos.y)) and not raindrop[4]:
-            raindrop[4] = True
-            if horz > 0:
-                splash = Splash(raindrop_pos.x, raindrop_pos.y, colorvalue, 45)
+        if raindrop_mask.overlap(mouse_mask, (mouse_x - raindrop_pos.x, mouse_y - raindrop_pos.y)) and not raindrop[3]:
+            raindrop[3] = True
+            if horizontal_rain_velocity > 0:
+                splash = Splash(raindrop_pos.x, raindrop_pos.y, raindrop[4], 45)
             else:
-                splash = Splash(raindrop_pos.x, raindrop_pos.y, colorvalue, -90)
+                splash = Splash(raindrop_pos.x, raindrop_pos.y, raindrop[4], -90)
             splashes.append(splash)
             raindrops.remove(raindrop)
 
