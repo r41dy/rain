@@ -26,8 +26,8 @@ RAIN_AMOUNT = 5 # less is more
 RAIN_SPEED_RANDOMNESS = 0.25
 HORIZONTAL_RAIN_VELOCITY = -250 # negative is left, positive is right
 RAIN_COLOR_R, RAIN_COLOR_G, RAIN_COLOR_B = 0, 0, 0
-color_by_depth_factor = 0 # 0 full color, >0 darker by depth
-uhhhh_idk = 0.8
+color_by_depth_factor = 0.4 # 0 full color, >0 darker by depth
+far_range = 0.8
 DIM_REFLECTION = 0.5
 ENABLE_REFLECTIONS = True
 
@@ -58,9 +58,9 @@ class Splash():
                 wave[2] += wave[5] * dt
                 wave[3] = wave[2]*wave[4]
                 wave[6] += 1
-                wave[8] = self.R*(1-(wave[6]/wave[7]))
-                wave[9] = self.G*(1-(wave[6]/wave[7]))
-                wave[10] = self.B*(1-(wave[6]/wave[7]))
+                wave[8] = blend(self.R, BACKGROUND_COLOR_R, (wave[6]/wave[7]))
+                wave[9] = blend(self.G, BACKGROUND_COLOR_G, (wave[6]/wave[7]))
+                wave[10] = blend(self.B, BACKGROUND_COLOR_B, (wave[6]/wave[7]))
                 if wave[6] > wave[7]:
                     self.waves.remove(wave)
 
@@ -69,7 +69,7 @@ class Splash():
             dot[1] += dot[2].y * dt
             dot[2].y += 500 * dt
             dot[3] += 1
-        self.dots = [dot for dot in self.dots if dot[1] <= HEIGHT*(depth*(1-uhhhh_idk)+uhhhh_idk) or dot[3] < 10]
+        self.dots = [dot for dot in self.dots if dot[1] <= HEIGHT*(depth*(1-far_range)+far_range) or dot[3] < 10]
 
     def draw(self):
         if self.do_spawn_wave:
@@ -77,7 +77,7 @@ class Splash():
                 pg.draw.ellipse(screen, (wave[8], wave[9], wave[10]), (wave[0]-wave[2]/2, wave[1]-wave[3]/2, wave[2], wave[3]), 1)
         for dot in self.dots:
             if ENABLE_REFLECTIONS:
-                dot_reflection_y = dot[1] - ((dot[1] - HEIGHT*(self.depth*(1-uhhhh_idk)+uhhhh_idk))*2)
+                dot_reflection_y = dot[1] - ((dot[1] - HEIGHT*(self.depth*(1-far_range)+far_range))*2)
                 pg.draw.circle(screen, (blend(self.R, BACKGROUND_COLOR_R, DIM_REFLECTION), blend(self.G, BACKGROUND_COLOR_G, DIM_REFLECTION), blend(self.B, BACKGROUND_COLOR_B, DIM_REFLECTION)), (dot[0], dot_reflection_y), 1)
             pg.draw.circle(screen, (self.R, self.G, self.B), (dot[0], dot[1]), 1)       
 
@@ -111,9 +111,9 @@ while run:
         depth = random.random()
         depth_for_color = (1-depth)*color_by_depth_factor
         raindrop_y = 0
-        raindrop_R = RAIN_COLOR_R-RAIN_COLOR_R*depth_for_color
-        raindrop_G = RAIN_COLOR_G-RAIN_COLOR_G*depth_for_color
-        raindrop_B = RAIN_COLOR_B-RAIN_COLOR_B*depth_for_color
+        raindrop_R = blend(RAIN_COLOR_R-RAIN_COLOR_R, BACKGROUND_COLOR_R, depth_for_color)
+        raindrop_G = blend(RAIN_COLOR_R-RAIN_COLOR_G, BACKGROUND_COLOR_G, depth_for_color)
+        raindrop_B = blend(RAIN_COLOR_R-RAIN_COLOR_B, BACKGROUND_COLOR_B, depth_for_color)
         rain_self_speed = RAIN_SPEED + (random.random()*RAIN_SPEED_RANDOMNESS-(RAIN_SPEED_RANDOMNESS/2))
         raindrops.append([raindrop_x, raindrop_y, rain_self_speed, False, raindrop_R, raindrop_G, raindrop_B, depth]) # random color value determination
         spawn_interval = RAIN_AMOUNT + random.uniform(-RAIN_AMOUNT/2, RAIN_AMOUNT/2)
@@ -128,10 +128,10 @@ while run:
         raindrop[0] += HORIZONTAL_RAIN_VELOCITY * dt
         raindrop_pos = vec2(raindrop[0], raindrop[1])
         if ENABLE_REFLECTIONS:
-            reflection_y = raindrop_pos.y - ((raindrop_pos.y - HEIGHT*(raindrop[7]*(1-uhhhh_idk)+uhhhh_idk))*2)
+            reflection_y = raindrop_pos.y - ((raindrop_pos.y - HEIGHT*(raindrop[7]*(1-far_range)+far_range))*2)
             pg.draw.aaline(screen, (blend(raindrop[4], BACKGROUND_COLOR_R, DIM_REFLECTION), blend(raindrop[5], BACKGROUND_COLOR_G, DIM_REFLECTION), blend(raindrop[6], BACKGROUND_COLOR_B, DIM_REFLECTION)), vec2(raindrop_pos.x, reflection_y), vec2(raindrop_pos.x-((HORIZONTAL_RAIN_VELOCITY*dt)/(raindrop_pos.y - prev_pos.y))*RAIN_LENGTH, reflection_y+RAIN_LENGTH), 5)
         pg.draw.aaline(screen, (raindrop[4], raindrop[5], raindrop[6]), vec2(raindrop_pos.x, raindrop_pos.y), vec2(raindrop_pos.x-((HORIZONTAL_RAIN_VELOCITY*dt)/(raindrop_pos.y - prev_pos.y))*RAIN_LENGTH, raindrop_pos.y-RAIN_LENGTH), RAIN_WIDTH)
-        if raindrop[1] > HEIGHT*(raindrop[7]*(1-uhhhh_idk)+uhhhh_idk) and not raindrop[3]:
+        if raindrop[1] > HEIGHT*(raindrop[7]*(1-far_range)+far_range) and not raindrop[3]:
             raindrop[3] = True
             splash = Splash(raindrop_pos.x, raindrop_pos.y, raindrop[4], raindrop[5], raindrop[6], 0, raindrop[7], True)
             splashes.append(splash)
