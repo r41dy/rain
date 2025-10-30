@@ -18,14 +18,14 @@ splashes = []
 last_spawn_time = pg.time.get_ticks()
 
 # PARAMETERS
-BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B = 255, 255, 255
+BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B = 0, 0, 0
 RAIN_LENGTH = 30
 RAIN_WIDTH = 1
-RAIN_SPEED = 500
+RAIN_SPEED = 1000
 RAIN_AMOUNT = 5 # less is more
 RAIN_SPEED_RANDOMNESS = 0.25
 HORIZONTAL_RAIN_VELOCITY = -250 # negative is left, positive is right
-RAIN_COLOR_R, RAIN_COLOR_G, RAIN_COLOR_B = 0, 0, 0
+RAIN_COLOR_R, RAIN_COLOR_G, RAIN_COLOR_B = 255, 255, 255
 color_by_depth_factor = 0.4 # 0 full color, >0 darker by depth
 far_range = 0.8
 DIM_REFLECTION = 0.5
@@ -111,9 +111,9 @@ while run:
         depth = random.random()
         depth_for_color = (1-depth)*color_by_depth_factor
         raindrop_y = 0
-        raindrop_R = blend(RAIN_COLOR_R-RAIN_COLOR_R, BACKGROUND_COLOR_R, depth_for_color)
-        raindrop_G = blend(RAIN_COLOR_R-RAIN_COLOR_G, BACKGROUND_COLOR_G, depth_for_color)
-        raindrop_B = blend(RAIN_COLOR_R-RAIN_COLOR_B, BACKGROUND_COLOR_B, depth_for_color)
+        raindrop_R = blend(RAIN_COLOR_R, BACKGROUND_COLOR_R, depth_for_color)
+        raindrop_G = blend(RAIN_COLOR_G, BACKGROUND_COLOR_G, depth_for_color)
+        raindrop_B = blend(RAIN_COLOR_B, BACKGROUND_COLOR_B, depth_for_color)
         rain_self_speed = RAIN_SPEED + (random.random()*RAIN_SPEED_RANDOMNESS-(RAIN_SPEED_RANDOMNESS/2))
         raindrops.append([raindrop_x, raindrop_y, rain_self_speed, False, raindrop_R, raindrop_G, raindrop_B, depth]) # random color value determination
         spawn_interval = RAIN_AMOUNT + random.uniform(-RAIN_AMOUNT/2, RAIN_AMOUNT/2)
