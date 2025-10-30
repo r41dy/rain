@@ -18,18 +18,21 @@ splashes = []
 last_spawn_time = pg.time.get_ticks()
 
 # PARAMETERS
-BACKGROUND_COLOR = (0, 0, 0)
-RAIN_LENGTH = 10
+BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B = 255, 255, 255
+RAIN_LENGTH = 30
 RAIN_WIDTH = 1
 RAIN_SPEED = 500
-RAIN_AMOUNT = 50 # less is more
+RAIN_AMOUNT = 5 # less is more
 RAIN_SPEED_RANDOMNESS = 0.25
 HORIZONTAL_RAIN_VELOCITY = -250 # negative is left, positive is right
-RAIN_COLOR_R, RAIN_COLOR_G, RAIN_COLOR_B = 255, 255, 255
+RAIN_COLOR_R, RAIN_COLOR_G, RAIN_COLOR_B = 0, 0, 0
 color_by_depth_factor = 0 # 0 full color, >0 darker by depth
 uhhhh_idk = 0.8
 DIM_REFLECTION = 0.5
 ENABLE_REFLECTIONS = True
+
+def blend(x, y, value):
+    return(int(x+((y-x)*value)))
 
 class Splash():
     def __init__(self, x, y, R, G, B, rotation, depth, do_spawn_wave):
@@ -75,7 +78,7 @@ class Splash():
         for dot in self.dots:
             if ENABLE_REFLECTIONS:
                 dot_reflection_y = dot[1] - ((dot[1] - HEIGHT*(self.depth*(1-uhhhh_idk)+uhhhh_idk))*2)
-                pg.draw.circle(screen, (self.R*DIM_REFLECTION, self.G*DIM_REFLECTION, self.B*DIM_REFLECTION), (dot[0], dot_reflection_y), 1)
+                pg.draw.circle(screen, (blend(self.R, BACKGROUND_COLOR_R, DIM_REFLECTION), blend(self.G, BACKGROUND_COLOR_G, DIM_REFLECTION), blend(self.B, BACKGROUND_COLOR_B, DIM_REFLECTION)), (dot[0], dot_reflection_y), 1)
             pg.draw.circle(screen, (self.R, self.G, self.B), (dot[0], dot[1]), 1)       
 
 spawn_interval = RAIN_AMOUNT + random.uniform(-RAIN_AMOUNT/2, RAIN_AMOUNT/2)
@@ -116,7 +119,7 @@ while run:
         spawn_interval = RAIN_AMOUNT + random.uniform(-RAIN_AMOUNT/2, RAIN_AMOUNT/2)
         last_spawn_time = time
     
-    screen.fill(BACKGROUND_COLOR)
+    screen.fill((BACKGROUND_COLOR_R, BACKGROUND_COLOR_G, BACKGROUND_COLOR_B))
 
     raindrops_to_remove = []
     for raindrop in raindrops:
@@ -126,7 +129,7 @@ while run:
         raindrop_pos = vec2(raindrop[0], raindrop[1])
         if ENABLE_REFLECTIONS:
             reflection_y = raindrop_pos.y - ((raindrop_pos.y - HEIGHT*(raindrop[7]*(1-uhhhh_idk)+uhhhh_idk))*2)
-            pg.draw.aaline(screen, (raindrop[4]*DIM_REFLECTION, raindrop[5]*DIM_REFLECTION, raindrop[6]*DIM_REFLECTION), vec2(raindrop_pos.x, reflection_y), vec2(raindrop_pos.x-((HORIZONTAL_RAIN_VELOCITY*dt)/(raindrop_pos.y - prev_pos.y))*RAIN_LENGTH, reflection_y+RAIN_LENGTH), 5)
+            pg.draw.aaline(screen, (blend(raindrop[4], BACKGROUND_COLOR_R, DIM_REFLECTION), blend(raindrop[5], BACKGROUND_COLOR_G, DIM_REFLECTION), blend(raindrop[6], BACKGROUND_COLOR_B, DIM_REFLECTION)), vec2(raindrop_pos.x, reflection_y), vec2(raindrop_pos.x-((HORIZONTAL_RAIN_VELOCITY*dt)/(raindrop_pos.y - prev_pos.y))*RAIN_LENGTH, reflection_y+RAIN_LENGTH), 5)
         pg.draw.aaline(screen, (raindrop[4], raindrop[5], raindrop[6]), vec2(raindrop_pos.x, raindrop_pos.y), vec2(raindrop_pos.x-((HORIZONTAL_RAIN_VELOCITY*dt)/(raindrop_pos.y - prev_pos.y))*RAIN_LENGTH, raindrop_pos.y-RAIN_LENGTH), RAIN_WIDTH)
         if raindrop[1] > HEIGHT*(raindrop[7]*(1-uhhhh_idk)+uhhhh_idk) and not raindrop[3]:
             raindrop[3] = True
